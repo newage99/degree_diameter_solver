@@ -80,9 +80,3 @@ def create_next_adjacency_matrix():
 if __name__ == "__main__":
     # We start the thread that will establish the communication with the Master
     threading.Thread(target=communication_with_master_thread).start()
-    # We create the first adjacency matrix (this function will be
-    # called later from the thread that calculate the results)
-    for i in range(3):
-        if not create_next_adjacency_matrix():
-            break
-    # We start the thread that will calculate the results
