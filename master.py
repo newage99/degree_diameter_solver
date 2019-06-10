@@ -3,8 +3,13 @@ import threading
 import requests
 import time
 
+
+class MsgId:
+    COMPUTE = int(0).to_bytes(1, byteorder='big')
+
+
 server_on = True
-length = 4
+length = 3
 every = 1000
 characters = "xyn+-*/%()1257"
 beginning = "xxx"
@@ -33,7 +38,8 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
     def handle(self):
         global server_on, length, every, characters, beginning
         print("tcp_handler: New client connected! " + str(self.client_address))
-        self.request.sendall(length.to_bytes(1, byteorder='big') +
+        self.request.sendall(MsgId.COMPUTE +
+                             length.to_bytes(1, byteorder='big') +
                              every.to_bytes(2, byteorder='big') +
                              len(characters).to_bytes(1, byteorder='big') +
                              bytes(characters, 'utf-8') +
