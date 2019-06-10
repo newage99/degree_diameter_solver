@@ -1,10 +1,10 @@
+import socketserver
 import threading
 import requests
 import time
-import socketserver
 
 server_on = True
-length = 3
+length = 4
 every = 1000
 characters = "xyn+-*/%()1257"
 beginning = "xxx"
@@ -33,12 +33,11 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
     def handle(self):
         global server_on, length, every, characters, beginning
         print("tcp_handler: New client connected! " + str(self.client_address))
-        # self.request.sendall(length.to_bytes(1, byteorder='big'),
-        #                      every.to_bytes(2, byteorder='big'),
-        #                      len(characters).to_bytes(1, byteorder='big'),
-        #                      bytes(characters, 'utf-8'),
-        #                      bytes(beginning, 'utf-8'))
-        self.request.sendall(bytes("hello", "utf-8"))
+        self.request.sendall(length.to_bytes(1, byteorder='big') +
+                             every.to_bytes(2, byteorder='big') +
+                             len(characters).to_bytes(1, byteorder='big') +
+                             bytes(characters, 'utf-8') +
+                             bytes(beginning, 'utf-8'))
         client_connected = True
         while client_connected and server_on:
             try:
@@ -71,24 +70,25 @@ if __name__ == "__main__":
         try:
             command = input('')
             if command.startswith('length'):
-                length = command.split()[0]
+                length = int(command.split()[1])
             elif command.startswith('every'):
-                every = command.split()[0]
+                every = int(command.split()[1])
             elif command.startswith('beginning'):
-                start = command.split()[0]
+                start = command.split()[1]
             elif command.startswith('characters'):
-                characters = command.split()[0]
+                characters = command.split()[1]
             elif command == 'start':
                 socketserver.TCPServer.allow_reuse_address = True
-                tcp_server = ThreadedTCPServer(("0.0.0.0", 9999), ThreadedTCPRequestHandler)
+                tcp_server = ThreadedTCPServer(("localhost", 9999), ThreadedTCPRequestHandler)
                 server_thread = threading.Thread(target=tcp_server.serve_forever)
                 server_thread.daemon = True
                 server_thread.start()
                 print("TCP request handler started")
             elif command == 'exit':
-                globals.server_on = False
-                tcp_server.shutdown()
-                tcp_server.server_close()
                 server_on = False
+                if tcp_server is not None:
+                    tcp_server.shutdown()
+                    tcp_server.server_close()
+                print("Server OFF")
         except Exception as e:
             print("Error parsing command: " + str(e))
