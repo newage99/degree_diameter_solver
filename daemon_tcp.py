@@ -42,12 +42,19 @@ def recv_handler(s):
         else:
             if response[0] == MsgId.COMPUTE:
                 length = response[1]
-                characters_length_final = 5 + response[4]
+                characters_final = 6 + response[4]
+                beginning_final = characters_final + length
+                num_of_sizes = response[5]
+                sizes = []
+                for i in range(0, num_of_sizes):
+                    sizes.append(int.from_bytes(
+                        response[beginning_final + (i*2):beginning_final + (i*2) + 2], byteorder='big'))
                 daemon_ids_creator.compute(
                     length,
                     int.from_bytes(response[2:4], byteorder='big'),
-                    response[5:characters_length_final].decode("utf-8"),
-                    response[characters_length_final:characters_length_final + length].decode("utf-8")
+                    response[6:characters_final].decode("utf-8"),
+                    response[characters_final:beginning_final].decode("utf-8"),
+                    sizes
                 )
 
 

@@ -59,16 +59,18 @@ length = 0
 every = 0
 characters = ""
 beginning = ""
+sizes = []
 calculation_thread = None
 calculation_on = True
 
 
-def compute(lengthh, everyy, characterss, beginningg):
-    global length, every, characters, beginning, calculation_thread, calculation_on
+def compute(lengthh, everyy, characterss, beginningg, sizess):
+    global length, every, characters, beginning, sizes, calculation_thread, calculation_on
     length = lengthh
     every = everyy
     characters = characterss
     beginning = beginningg
+    sizes = sizess
     if calculation_thread is not None:
         calculation_on = False
         calculation_thread.join()
@@ -77,14 +79,15 @@ def compute(lengthh, everyy, characterss, beginningg):
 
 
 def calculation_func():
-    global length, every, characters, beginning, calculation_on, calculation_thread
+    global length, every, characters, beginning, sizes, calculation_on, calculation_thread
     if length is not None and length > 0 and every is not None and every > 0 and characters is not None \
-            and len(characters) > 0 and beginning is not None and len(beginning) > 0:
+            and len(characters) > 0 and beginning is not None and len(beginning) > 0 and len(sizes) >= 3:
         returned_true = True
         beginning_len = len(beginning)
         if beginning_len < length:
             beginning += characters[0] * (length - beginning_len)
         topology_id = beginning
+        daemon_topology_creator.set_sizes(sizes)
         while calculation_on and returned_true:
             pointer = validate_id(topology_id)
             if pointer is 0:
@@ -164,6 +167,7 @@ def validate_id(id):
 
 
 def next_id(id, pointer):
+    global characters
     model_pos = -1
     if pointer < length - 1:
         if pointer > 0:

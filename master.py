@@ -13,6 +13,7 @@ length = 3
 every = 1000
 characters = "xyn+-*/%()1257"
 beginning = "xxx"
+sizes = [20, 100, 500]
 
 
 def update_public_ip_thread():
@@ -38,12 +39,18 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
     def handle(self):
         global server_on, length, every, characters, beginning
         print("tcp_handler: New client connected! " + str(self.client_address))
+        sizes_bytes = b""
+        for size in sizes:
+            sizes_bytes += size.to_bytes(2, byteorder='big')
+        beginning_to_send = beginning[0:length]
         self.request.sendall(MsgId.COMPUTE +
                              length.to_bytes(1, byteorder='big') +
                              every.to_bytes(2, byteorder='big') +
                              len(characters).to_bytes(1, byteorder='big') +
+                             len(sizes).to_bytes(1, byteorder='big') +
                              bytes(characters, 'utf-8') +
-                             bytes(beginning, 'utf-8'))
+                             bytes(beginning_to_send, 'utf-8') +
+                             sizes_bytes)
         client_connected = True
         while client_connected and server_on:
             try:
