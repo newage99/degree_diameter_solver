@@ -5,7 +5,6 @@ import jsons
 import time
 
 daemon_on = True
-topology_id = ["x", "x", "x"]
 xyn_array = ["x", "y", "n", "(", "1", "2", "5", "7"]
 plus_minus_array = ["+", "-", "*", "/", "%", ")"]
 operators_array = ["+", "*", "/", "%", ")"]
@@ -64,17 +63,17 @@ def calculation_func():
     global length, every, characters, beginning, calculation_on, calculation_thread, results
     if length is not None and length > 0 and every is not None and every > 0 and characters is not None \
             and len(characters) > 0 and beginning is not None and len(beginning) > 0:
-        topology_id.clear()
-        for char in beginning.decode("utf-8"):
-            topology_id.append(char)
         returned_true = True
-        str = "".join(topology_id)
+        beginning_len = len(beginning)
+        if beginning_len < length:
+            beginning += "x" * (length - beginning_len)
+        strr = beginning
         while calculation_on and returned_true:
-            pointer = validate_string(str)
+            pointer = validate_string(strr)
             if pointer is 0:
-                results.append(str)
-            returned_true, str = next_string(str, pointer)
-        a = 0
+                results.append(strr)
+            returned_true, strr = next_string(strr, pointer)
+        print("len(results): " + str(len(results)))
 
 
 def tcp_handler(s):
@@ -87,7 +86,7 @@ def tcp_handler(s):
         every = int.from_bytes(response[1:3], byteorder='big')
         characters_length_final = 4 + response[3]
         characters = response[4:characters_length_final].decode("utf-8")
-        beginning = response[characters_length_final:characters_length_final+length]
+        beginning = response[characters_length_final:characters_length_final + length].decode("utf-8")
         if calculation_thread is not None:
             calculation_on = False
             calculation_thread.join()
@@ -110,8 +109,10 @@ def communication_with_master_thread():
 
 
 def validate_string(str):
-    if str == "x*-":
-        a = 0
+    # PRE CHECK 1
+    start = str[0]
+    if start == "+" or start == "*" or start == "/" or start == "%" or start == ")":
+        return length - 1
     prev = " "
     actual = str[0]
     nextt = None

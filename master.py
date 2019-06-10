@@ -74,7 +74,7 @@ if __name__ == "__main__":
             elif command.startswith('every'):
                 every = int(command.split()[1])
             elif command.startswith('beginning'):
-                start = command.split()[1]
+                beginning = command.split()[1]
             elif command.startswith('characters'):
                 characters = command.split()[1]
             elif command == 'start':
