@@ -81,7 +81,7 @@ def compute(lengthh, everyy, characterss, beginningg, sizess):
 def calculation_func():
     global length, every, characters, beginning, sizes, calculation_on, calculation_thread
     if length is not None and length > 0 and every is not None and every > 0 and characters is not None \
-            and len(characters) > 0 and beginning is not None and len(beginning) > 0 and len(sizes) >= 3:
+            and len(characters) > 0 and beginning is not None and len(beginning) > 0 and len(sizes) >= 2:
         returned_true = True
         beginning_len = len(beginning)
         if beginning_len < length:
