@@ -13,7 +13,8 @@ length = 3
 every = 1000
 characters = "xyn+-*/%()1257"
 beginning = "xxx"
-sizes = [20, 100, 500]
+# sizes = [20, 100, 500]
+sizes = [2, 4, 8]
 
 
 def update_public_ip_thread():

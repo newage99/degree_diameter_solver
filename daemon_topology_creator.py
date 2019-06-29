@@ -57,7 +57,7 @@ def create_topology(id, n):
             except:
                 pass
     if is_graph_connected(adjancency_matrix):
-        daemon_dd_calculator.calculate(id, adjancency_matrix)
+        daemon_dd_calculator.calculate(adjancency_matrix)
 
 
 def create(id):
@@ -66,4 +66,4 @@ def create(id):
         return
     for size in sizes:
         create_topology(id, size)
-    daemon_dd_calculator.check_topology()
+    daemon_dd_calculator.check_topology(id)
