@@ -71,39 +71,49 @@ def check_if_constant(points):
     return constant
 
 
+def find_gcd(x, y):
+    while y:
+        x, y = y, x % y
+    return x
+
+
 def calculate_punctuation(points):
     if check_if_constant(points):
         return ["CONSTANT", points[0][1]]
+    x1 = points[0][0]
+    x2 = points[-1][0]
+    a = x1 - x2
     y1 = points[0][1]
-    a = points[len(points) - 1][1] - y1
-    x1 = points[len(points) - 1][0]
-    b = x1 - points[0][0]
-    sqrtab = sqrt((a*a) + (b*b))
-    c = (a * x1) + (b * y1)
+    b = points[-1][1] - y1
+    c = (a * y1) + (b * x1)
+    sqrtab = sqrt((a * a) + (b * b))
     last_under_or_above = 0
     first_one = True
     lowest_d = 0
     highest_d = 0
     total = 0
-    print("a: " + str(a) + " | b: " + str(b) + " | c: " + str(c))
+    # print("a: " + str(a) + " | b: " + str(b) + " | c: " + str(c))
     for i in range(1, len(points)):
+        if c == -80:
+            t = 0
         x = points[i][0]
         y = points[i][1]
-        d = abs((a * x) + (b * y) + c) / sqrtab
-        if y < (a * x) + b:
+        d = abs((a * y) + (b * x) - c) / sqrtab
+        comp = ((b * x) - c) / -a
+        if y < comp:
             under_or_above = -1
             if d > lowest_d:
                 lowest_d = d
-        elif y > (a * x) + b:
+        elif y > comp:
             under_or_above = 1
             if d > highest_d:
                 highest_d = d
         else:
             under_or_above = 0
         if first_one:
-            first_one = False
+            if under_or_above != 0:
+                first_one = False
         elif under_or_above != last_under_or_above:
-            its_an_straight_line = False
             if last_under_or_above == 1:
                 total += highest_d
             elif last_under_or_above == -1:
@@ -123,6 +133,8 @@ def check_topology(id):
             degree_points.append([key, value[0]])
             diameter_points.append([key, value[1]])
     if len(degree_points) >= 3:
+        if id == "x*x*y":
+            t = 0
         print(id)
         degree_result = calculate_punctuation(degree_points)
         print("degree: " + degree_result[0] + " " + str(degree_result[1]))

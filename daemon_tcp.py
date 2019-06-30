@@ -59,16 +59,16 @@ def recv_handler(s):
 
 
 def simulate_server_response():
-    daemon_ids_creator.compute(5, 1000, "xyn+-*/%()1257", "xxx", [8, 16, 32])
+    daemon_ids_creator.compute(5, 1000, "xyn+-*/%()12", "xxx", [16, 32, 64])
 
 
 def tcp_thread():
-    while daemon.daemon_on:
-        try:
-            print("tcp_thread: Connecting to master...")
-            simulate_server_response()
-            # s = connect()
-            # recv_handler(s)
-        except:
-            pass
-        time.sleep(120)
+    simulate_server_response()
+    # while daemon.daemon_on:
+    #     try:
+    #         print("tcp_thread: Connecting to master...")
+    #         s = connect()
+    #         recv_handler(s)
+    #     except:
+    #         pass
+    #     time.sleep(120)
