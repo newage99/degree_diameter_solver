@@ -146,26 +146,30 @@ def insert_into_results_list(id, degree_results, diameter_results):
     my_num_constants = 1 if degree_results[0] == "CONSTANT" else 0
     my_num_constants += 1 if diameter_results[0] == "CONSTANT" else 0
     not_added = True
-    for i in range(len(results) - 1):
+    for i in range(len(results)):
         actual = results[i]
         num_constants = 1 if actual[0][0] == "CONSTANT" else 0
         num_constants += 1 if actual[1][0] == "CONSTANT" else 0
         comp_1 = compare_results(degree_results, actual[0])
         comp_2 = compare_results(diameter_results, actual[1])
-        if (comp_1 == "BEST" and comp_2 == "BEST") or my_num_constants > num_constants:
+        if (comp_1 == "BEST" and comp_2 == "BEST") or (comp_1 == "BEST" and comp_2 == "EQUAL") or (comp_1 == "EQUAL" and comp_2 == "BEST") or my_num_constants > num_constants:
             pos = i
             break
-        elif my_num_constants == num_constants:
+        elif comp_1 == "EQUAL" and comp_2 == "EQUAL":
+            results[i][2].append(id)
+            not_added = False
+            break
+        elif my_num_constants == num_constants and ((comp_1 == "BEST" and comp_2 == "WORST") or (comp_1 == "WORST" and comp_2 == "BEST")):
+            my_degree = degree_results[1]
+            my_diameter = diameter_results[1]
             if my_num_constants == 1:
-                # TODO
-                t = 0
+                my_const, my_no_const = (my_degree, my_diameter) if degree_results[0] == "CONSTANT" else (my_diameter, my_degree)
+                his_const, his_no_const = (actual[0][1], actual[1][1]) if actual[0][0] == "CONSTANT" else (actual[1][1], actual[0][1])
+                if my_no_const - my_const > his_no_const - his_const:
+                    pos = i
+                    break
             else:
-                my_degree = degree_results[1]
-                my_diameter = diameter_results[1]
-                if my_degree == actual[0][1] and my_diameter == actual[1][1]:
-                    results[i][2].append(id)
-                    not_added = False
-                elif my_degree == actual[1][1] and my_diameter == actual[0][1]:
+                if my_degree == actual[1][1] and my_diameter == actual[0][1]:
                     if i < len(results) - 1:
                         if my_degree == results[i+1][0][1] and my_diameter == results[i+1][1][1]:
                             results[i+1][2].append(id)
@@ -176,14 +180,13 @@ def insert_into_results_list(id, degree_results, diameter_results):
                             break
                     else:
                         break
-                elif my_degree[0] == "CONSTANT" and my_diameter[0] == "CONSTANT":
-                    if my_degree[1] + my_diameter[1] < actual[0][1] + actual[1][1]:
+                elif degree_results[0] == "CONSTANT" and diameter_results[0] == "CONSTANT":
+                    if my_degree + my_diameter < actual[0][1] + actual[1][1]:
                         pos = i
                         break
-                elif my_degree[1] + my_diameter[1] > actual[0][1] + actual[1][1]:
+                elif my_degree + my_diameter > actual[0][1] + actual[1][1]:
                     pos = i
                     break
-
 
     if not_added:
         if pos == -1 or pos >= len(results):
