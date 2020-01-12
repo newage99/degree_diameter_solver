@@ -1,5 +1,6 @@
 import daemon_topology_creator
 import threading
+import random import randint
 
 variables = ["x", "y", "n"]
 numbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
@@ -59,18 +60,17 @@ length = 0
 every = 0
 characters = ""
 beginning = ""
-sizes = []
+size = []
 calculation_thread = None
 calculation_on = True
 
 
-def compute(lengthh, everyy, characterss, beginningg, sizess):
-    global length, every, characters, beginning, sizes, calculation_thread, calculation_on
+def compute(lengthh, characterss, beginningg, sizee):
+    global length, every, characters, beginning, size, calculation_thread, calculation_on
     length = lengthh
-    every = everyy
     characters = characterss
     beginning = beginningg
-    sizes = sizess
+    size = sizee
     if calculation_thread is not None:
         calculation_on = False
         calculation_thread.join()
@@ -79,20 +79,25 @@ def compute(lengthh, everyy, characterss, beginningg, sizess):
 
 
 def calculation_func():
-    global length, every, characters, beginning, sizes, calculation_on, calculation_thread
+    global length, every, characters, beginning, size, calculation_on, calculation_thread
     if length is not None and length > 0 and every is not None and every > 0 and characters is not None \
-            and len(characters) > 0 and beginning is not None and len(beginning) > 0 and len(sizes) >= 2:
+            and len(characters) > 0 and beginning is not None and len(beginning) > 0 and size > 0:
         returned_true = True
         beginning_len = len(beginning)
         if beginning_len < length:
             beginning += characters[0] * (length - beginning_len)
         topology_id = beginning
-        daemon_topology_creator.set_sizes(sizes)
+        daemon_topology_creator.set_size(size)
         while calculation_on and returned_true:
             pointer = validate_id(topology_id)
             if pointer is 0:
                 daemon_topology_creator.create(topology_id)
             returned_true, topology_id = next_id(topology_id, pointer)
+
+
+def random_id():
+    pass
+    # TODO
 
 
 def validate_id(id):

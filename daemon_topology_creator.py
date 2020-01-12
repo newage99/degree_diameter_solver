@@ -1,13 +1,13 @@
 import daemon_dd_calculator
 from daemon import append_if_not_exists
 
-sizes = []
+size = 1
 exec_result = None
 
 
-def set_sizes(sizess):
-    global sizes
-    sizes = sizess
+def set_sizes(sizee):
+    global size
+    size = sizee
 
 
 def is_graph_connected(adjacency_matrix):
@@ -64,6 +64,5 @@ def create(id):
     global sizes
     if len(sizes) < 2:
         return
-    for size in sizes:
-        create_topology(id, size)
+    create_topology(id, size)
     daemon_dd_calculator.check_topology(id)
