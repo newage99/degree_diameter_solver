@@ -1,6 +1,7 @@
 import daemon_topology_creator
 import threading
-import random import randint
+import random
+import time
 
 variables = ["x", "y", "n"]
 numbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
@@ -65,11 +66,10 @@ calculation_thread = None
 calculation_on = True
 
 
-def compute(lengthh, characterss, beginningg, sizee):
-    global length, every, characters, beginning, size, calculation_thread, calculation_on
+def compute(lengthh, characterss, sizee):
+    global length, characters, beginning, size, calculation_thread, calculation_on
     length = lengthh
     characters = characterss
-    beginning = beginningg
     size = sizee
     if calculation_thread is not None:
         calculation_on = False
@@ -79,25 +79,68 @@ def compute(lengthh, characterss, beginningg, sizee):
 
 
 def calculation_func():
-    global length, every, characters, beginning, size, calculation_on, calculation_thread
-    if length is not None and length > 0 and every is not None and every > 0 and characters is not None \
-            and len(characters) > 0 and beginning is not None and len(beginning) > 0 and size > 0:
-        returned_true = True
-        beginning_len = len(beginning)
-        if beginning_len < length:
-            beginning += characters[0] * (length - beginning_len)
-        topology_id = beginning
-        daemon_topology_creator.set_size(size)
-        while calculation_on and returned_true:
-            pointer = validate_id(topology_id)
-            if pointer is 0:
-                daemon_topology_creator.create(topology_id)
-            returned_true, topology_id = next_id(topology_id, pointer)
+    global length, characters, size, calculation_on, calculation_thread
+    if length is not None and length > 0 and characters is not None and len(characters) > 0 and size > 0:
+        # daemon_topology_creator.set_size(size)
+        while calculation_on:
+            # if validate_id(topology_id):
+            #     daemon_topology_creator.create(topology_id)
+            print(random_id())
+            time.sleep(1)
+
+
+def mutate_id(id):
+    pass
 
 
 def random_id():
-    pass
-    # TODO
+    new_id, is_open_parenthesis, is_close_parenthesis = random_char()
+    parenthesis_counter = 1 if is_open_parenthesis else -1 if is_close_parenthesis else 0
+    while new_id in plus_minus_array:
+        new_id, is_open_parenthesis, is_close_parenthesis = random_char()
+        parenthesis_counter = 1 if is_open_parenthesis else 0
+    while len(new_id) < length or new_id[-1] in operators_array_left:
+        new_c, is_open_parenthesis, is_close_parenthesis = random_char()
+        while new_id[-1] in forbidden_left_chars[new_c] or \
+                (is_close_parenthesis and not valid_close_parenthesis(new_id, parenthesis_counter)) or \
+                (is_open_parenthesis and not valid_open_parenthesis(new_id, parenthesis_counter)):
+            new_c, is_open_parenthesis, is_close_parenthesis = random_char()
+        parenthesis_counter += 1 if is_open_parenthesis else -1 if is_close_parenthesis else 0
+        new_id += new_c
+    while parenthesis_counter > 0:
+        if new_id[-1] in forbidden_left_chars[")"]:
+            new_c, is_open_parenthesis, is_close_parenthesis = random_char()
+            while new_id[-1] in forbidden_left_chars[new_c] or new_c == "(":
+                new_c, is_open_parenthesis, is_close_parenthesis = random_char()
+            new_id += new_c
+        else:
+            new_id += ")"
+            parenthesis_counter -= 1
+    return new_id
+
+
+def valid_close_parenthesis(id, parenthesis_counter):
+    if parenthesis_counter > 0:
+        length_check = 0
+        valid = True
+        while length_check < 3 and valid:
+            if len(id) > length_check and id[-(length_check+1)] == '(':
+                valid = False
+            length_check += 1
+        if valid:
+            return True
+    return False
+
+
+def valid_open_parenthesis(id, parenthesis_counter):
+    remain_to_fill = length - len(id)
+    remain_to_fill = 0 if remain_to_fill < 0 else remain_to_fill
+    return parenthesis_counter < remain_to_fill - 3
+
+
+def random_char():
+    new_c = characters[random.randint(0, len(characters) - 1)]
+    return new_c, new_c == '(', new_c == ')'
 
 
 def validate_id(id):
@@ -105,7 +148,7 @@ def validate_id(id):
     # PRE CHECK 1
     start = id[0]
     if start == "+" or start == "*" or start == "/" or start == "%" or start == ")":
-        return length - 1
+        return False
     prev = " "
     actual = id[0]
     for i in range(1, length + 1):
@@ -114,19 +157,19 @@ def validate_id(id):
         else:
             nextt = " "
         if prev in forbidden_left_chars[actual] or nextt in forbidden_right_chars[actual]:
-            return i
+            return False
         prev = actual
         actual = nextt
     # POST CHECK 0
     last = id[-1]
     if last == "+" or last == "-" or last == "*" or last == "/" or last == "%" or last == "(":
-        return length - 1
+        return False
     # POST CHECK 1
     if "x" not in id or "y" not in id:
-        return length - 1
+        return False
     # POST CHECK 2
     if("y" in id and "x" not in id) or (("z" in id) and ("x" not in id or "y" not in id)):
-        return length - 1
+        return False
     # POST CHECK 3
     contains_variables = False
     wrong_parenthesis = False
@@ -165,10 +208,10 @@ def validate_id(id):
     # POST CHECKS 4
     if not contains_variables or wrong_parenthesis or parenthesis_counter is not 0 \
             or parenthesis_with_one_space_only or there_is_a_double_parenthesis:
-        return length - 1
+        return False
     if id.startswith("(") and id.endswith(")"):
-        return length - 1
-    return 0
+        return False
+    return True
 
 
 def next_id(id, pointer):

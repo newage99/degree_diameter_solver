@@ -2,6 +2,7 @@ import socketserver
 import threading
 import requests
 import time
+import daemon_ids_creator
 
 
 class MsgId:
@@ -100,9 +101,11 @@ if __name__ == "__main__":
                 print("TCP request handler started")
             elif command == 'exit':
                 server_on = False
+                daemon_ids_creator.calculation_on = False
                 if tcp_server is not None:
                     tcp_server.shutdown()
                     tcp_server.server_close()
                 print("Server OFF")
+                raise Exception()
         except Exception as e:
             print("Error parsing command: " + str(e))

@@ -59,7 +59,7 @@ def recv_handler(s):
 
 
 def simulate_server_response():
-    daemon_ids_creator.compute(5, 1000, "xyn+-*/%()12", "xxx", [16, 32, 64])
+    daemon_ids_creator.compute(10, "xyn+-*/%()12", 44)
 
 
 def tcp_thread():

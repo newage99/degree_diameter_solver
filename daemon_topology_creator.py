@@ -48,12 +48,9 @@ def create_topology(id, n):
                      .replace("y", "float(y)")
                      .replace("n", "float(n)"))
                 exec_result = int(round(exec_result))
-                if 0 <= exec_result < n and exec_result != x:
-                    if adjancency_matrix[x][exec_result] == 0:
-                        adjancency_matrix[x][exec_result] = 1
-                    else:
-                        adjancency_matrix[x][exec_result] += 1
-                    adjancency_matrix[exec_result][x] = adjancency_matrix[x][exec_result]
+                if exec_result > 0:
+                    adjancency_matrix[x][y] += 1
+                    adjancency_matrix[y][x] += 1
             except:
                 pass
     if is_graph_connected(adjancency_matrix):
